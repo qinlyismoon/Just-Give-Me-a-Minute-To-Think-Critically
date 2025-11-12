@@ -84,7 +84,7 @@ function draw() {
     if (isMouseInBounds(disinfo.bounds)) {
       disinfo.x += random(-5, 5);
       disinfo.y += random(-5, 5);
-      fill("#cb4a31");
+      fill("#ab2734");
     } else {
       fill(0);
     }
@@ -136,7 +136,7 @@ function updateAndDrawFragments(disinfo) {
     frag.y += frag.vy;
     frag.vy += 0.15;
     frag.alpha -= 4;
-    fill(0, 0, 0, frag.alpha);
+    fill(171, 39, 52, frag.alpha);
     text(frag.char, frag.x, frag.y);
   }
 }
