@@ -28,7 +28,7 @@ function setup() {
   blurSlider.style("display", "inline-block");
   blurSlider.style("margin-right", "10px");
 
-  colorSlider = createSlider(0, 255, 0);
+  colorSlider = createSlider(0, 255, 255);
   colorSlider.position(390, height + 10);
   colorSlider.style("width", "180px");
   colorSlider.style("display", "inline-block");
