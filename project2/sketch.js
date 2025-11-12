@@ -1,119 +1,151 @@
-let particlesFront = [];
-let particlesBack = [];
-
-let res = 2.5;
-
-let imgFront;  // Disinformation image
-let imgBack;   // Titan logo image
+let font;
+let fontsize = 60;
+let infoList = [];
+let disinfoList = [];
+let totalInfo = 5;
+let totalDisinfo = 5;
+let shatterSound;
 
 function preload() {
-  imgFront = loadImage("disinformation.png");
-  imgBack = loadImage("TITAN.png");
+  font = loadFont('PixelFont.ttf');
+  soundFormats('mp3', 'wav');
+  shatterSound = loadSound('shatter.mp3');
 }
 
 function setup() {
   let canvas = createCanvas(600, 600);
   canvas.parent("canvas-container");
-  
-  noStroke();
-  placeParticles();
+  textFont(font);
+  textSize(fontsize);
+  noCursor();
+
+  for (let i = 0; i < totalInfo; i++) {
+    infoList.push({
+      word: 'Information',
+      x: random(50, width - 250),
+      y: random(100, height - 50),
+      bounds: null
+    });
+  }
+
+  for (let i = 0; i < totalDisinfo; i++) {
+    disinfoList.push({
+      word: 'Disinformation',
+      x: random(50, width - 250),
+      y: random(100, height - 50),
+      bounds: null,
+      isShattered: false,
+      fragments: []
+    });
+  }
 }
 
 function draw() {
-  background(255);
+  background(240);
+  textFont(font);
+  textSize(fontsize);
 
-  // Backimage：Titan logo particle
-  for (let p of particlesBack) {
-    p.update();
-    p.draw();
+  // Draw info
+  for (let info of infoList) {
+    info.bounds = {
+      x: info.x,
+      y: info.y - fontsize,
+      w: textWidth(info.word),
+      h: fontsize
+    };
+
+    if (isMouseInBounds(info.bounds)) {
+      info.x += random(-0.3, 0.3);
+      info.y += random(-0.3, 0.3);
+    }
+
+    fill(0);
+    text(info.word, info.x, info.y);
   }
 
-  // Frontimage：Disinformation particle
-  for (let p of particlesFront) {
-    p.update();
-    p.draw();
+  // Draw disinfo
+  for (let i = disinfoList.length - 1; i >= 0; i--) {
+    let disinfo = disinfoList[i];
+    disinfo.bounds = {
+      x: disinfo.x,
+      y: disinfo.y - fontsize,
+      w: textWidth(disinfo.word),
+      h: fontsize
+    };
+
+    if (disinfo.isShattered) {
+      updateAndDrawFragments(disinfo);
+      if (disinfo.fragments.every(f => f.alpha <= 0)) {
+        disinfoList.splice(i, 1);
+      }
+      continue;
+    }
+
+    if (isMouseInBounds(disinfo.bounds)) {
+      disinfo.x += random(-5, 5);
+      disinfo.y += random(-5, 5);
+      fill("#cb4a31");
+    } else {
+      fill(0);
+    }
+
+    text(disinfo.word, disinfo.x, disinfo.y);
   }
+
+  // Draw TITAN cursor
+  fill("#0061f0");
+  textSize(30);
+  textFont(font);
+  text("TITAN", mouseX + 10, mouseY + 5);
+  textSize(fontsize);
 }
 
-function placeParticles() {
-  for (let i = 0; i < width; i += res) {
-    for (let j = 0; j < height; j += res) {
-      let xRatio = i / width;
-      let yRatio = j / height;
-
-      // Frontimage-Disinformation
-      let xF = int(xRatio * imgFront.width);
-      let yF = int(yRatio * imgFront.height);
-      let cF = imgFront.get(xF, yF);
-
-      // Backimage-Titan
-      let xB = int(xRatio * imgBack.width);
-      let yB = int(yRatio * imgBack.height);
-      let cB = imgBack.get(xB, yB);
-
-      // 只处理非白色前景像素
-      if (cF[0] + cF[1] + cF[2] < 255 * 3) {
-        particlesFront.push(new Particle(i, j, cF));
-      }
-
-      // 只处理非白色背景像素
-      if (cB[0] + cB[1] + cB[2] < 255 * 3) {
-        particlesBack.push(new RevealParticle(i, j, cB));
+function mousePressed() {
+  userStartAudio(); // Ensure sound is allowed
+  for (let disinfo of disinfoList) {
+    if (!disinfo.isShattered && isMouseInBounds(disinfo.bounds)) {
+      disinfo.isShattered = true;
+      createFragments(disinfo);
+      if (shatterSound && shatterSound.isLoaded()) {
+        shatterSound.play();
       }
     }
   }
 }
 
-// 前层粒子类（可移动）
-class Particle {
-  constructor(x, y, c) {
-    this.x = x;
-    this.y = y;
-    this.c = c;
-
-    this.homeX = x;
-    this.homeY = y;
-  }
-
-  update() {
-    let d = dist(this.x, this.y, mouseX, mouseY);
-    let a = atan2(this.y - mouseY, this.x - mouseX);
-
-    let dHome = dist(this.x, this.y, this.homeX, this.homeY);
-    let aHome = atan2(this.homeY - this.y, this.homeX - this.x);
-
-    let fMouse = constrain(map(d, 0, 100, 10, 0), 0, 10);
-    let fHome = map(dHome, 0, 100, 0, 10);
-
-    let vx = cos(a) * fMouse + cos(aHome) * fHome;
-    let vy = sin(a) * fMouse + sin(aHome) * fHome;
-
-    this.x += vx;
-    this.y += vy;
-  }
-
-  draw() {
-    fill(this.c);
-    ellipse(this.x, this.y, res, res);
+function createFragments(disinfo) {
+  let chars = disinfo.word.split('');
+  let offsetX = 0;
+  for (let ch of chars) {
+    let w = textWidth(ch);
+    disinfo.fragments.push({
+      char: ch,
+      x: disinfo.x + offsetX,
+      y: disinfo.y,
+      vx: random(-2, 2),
+      vy: random(-3, -1),
+      alpha: 255
+    });
+    offsetX += w;
   }
 }
 
-// 后层粒子类（根据鼠标距离改变透明度）
-class RevealParticle {
-  constructor(x, y, c) {
-    this.x = x;
-    this.y = y;
-    this.c = c;
-    this.alpha = 0;
+function updateAndDrawFragments(disinfo) {
+  for (let frag of disinfo.fragments) {
+    frag.x += frag.vx;
+    frag.y += frag.vy;
+    frag.vy += 0.15;
+    frag.alpha -= 4;
+    fill(0, 0, 0, frag.alpha);
+    text(frag.char, frag.x, frag.y);
   }
+}
 
-  update() {
-    let d = dist(this.x, this.y, mouseX, mouseY);
-    this.alpha = constrain(map(d, 0, 30, 255, 0), 0, 255);
-  }
-
-  draw() {
-    fill(this.c[0], this.c[1], this.c[2], this.alpha);
-    ellipse(this.x, this.y, res, res);
-  }
+function isMouseInBounds(bounds) {
+  return (
+    mouseX >= bounds.x &&
+    mouseX <= bounds.x + bounds.w &&
+    mouseY >= bounds.y &&
+    mouseY <= bounds.y + bounds.h
+  );
 }
