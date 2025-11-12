@@ -69,7 +69,7 @@ function draw() {
     fill(120);
     rect(p.x, p.y, p.x + p.w, p.y + p.h);
 
-    fill("#D1E7F2");
+    fill("#00b1f0");
     rect(p.x, p.holeY, p.x + p.w, p.holeY + p.holeH);
   }
 
