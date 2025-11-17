@@ -20,7 +20,7 @@ function setup() {
   noStroke();
 
 
-  colors = ["#CE7A51", "#E7B63D", "#BEC8AF", "#7BA4AA"];
+  colors = ["#ED3F27", "#FEB21A", "#FDF4E3", "#FF9013"];
   let cellW = width / cols;
   let cellH = height / rows;
   let index = 0;
