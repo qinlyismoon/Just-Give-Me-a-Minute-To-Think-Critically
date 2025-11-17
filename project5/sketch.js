@@ -1,8 +1,8 @@
 let img;
-let slider;         // Aperture radius
-let blurSlider;     // Blur width
-let zoomSlider;     // Zoom level
-let pg;             // Graphics layer
+let slider;
+let blurSlider;
+let zoomSlider;
+let pg;
 let pixelFont;
 
 function preload() {
@@ -30,7 +30,7 @@ function setup() {
 }
 
 function draw() {
-  image(img, 0, 0); // 背景图像
+  background(0);  // 🔥 整体变为黑色背景
 
   pg.clear();
 
@@ -52,7 +52,7 @@ function draw() {
 
 
   ctx.drawImage(
-    img.canvas,          // 注意：drawImage使用原始canvas
+    img.canvas,
     sx, sy,
     zoomSize / zoom, zoomSize / zoom,
     mouseX - radius, mouseY - radius,
@@ -60,23 +60,24 @@ function draw() {
   );
   ctx.restore();
 
+
   ctx.save();
   let innerRadius = max(0, radius - blurWidth);
   let outerRadius = radius;
 
   let glowGradient = ctx.createRadialGradient(mouseX, mouseY, innerRadius, mouseX, mouseY, outerRadius);
   glowGradient.addColorStop(0, 'rgba(255,255,255,0.0)');
-  glowGradient.addColorStop(0.8, 'rgba(255,255,255,0.2)');
-  glowGradient.addColorStop(1, 'rgba(255,255,255,0.6)');
+  glowGradient.addColorStop(0.7, 'rgba(255,255,255,0.15)');
+  glowGradient.addColorStop(1, 'rgba(255,255,255,0.5)');
   ctx.fillStyle = glowGradient;
   ctx.beginPath();
   ctx.arc(mouseX, mouseY, radius, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 
-  image(pg, 0, 0);
+  image(pg, 0, 0); 
 
-  // --- 滑块文字 ---
+  // === 滑块说明文字 ===
   fill(255);
   textSize(14);
   textFont(pixelFont);
