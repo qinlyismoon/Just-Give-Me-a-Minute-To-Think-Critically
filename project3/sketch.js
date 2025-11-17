@@ -20,7 +20,7 @@ function setup() {
   noStroke();
 
 
-  colors = ["#ED3F27", "#FEB21A", "#FDF4E3", "#FF9013"];
+  colors = ["#ED3F27", "#48B3AF", "#FDF4E3", "#FF9013"];
   let cellW = width / cols;
   let cellH = height / rows;
   let index = 0;
@@ -68,7 +68,7 @@ class PhraseButton {
 
   setWord(text, isGray = false) {
     this.word = text;
-    this.color = isGray ? "#888888" : random(colors);
+    this.color = isGray ? "#FEB21A" : random(colors);
   }
 
   display() {
