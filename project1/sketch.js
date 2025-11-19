@@ -1,6 +1,6 @@
 let font;
 let words = [];
-let totalWords = 5;
+let totalWords = 7;
 let fontSize = 60;
 let diskWidth = 80;
 let diskHeight = 55;
