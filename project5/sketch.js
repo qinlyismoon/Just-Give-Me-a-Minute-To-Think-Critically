@@ -18,8 +18,16 @@ function setup() {
   pg = createGraphics(600, 600);
 
   slider = createSlider(50, 300, 150);
-  slider.position(10, height + 10);
+  slider.parent("slider-holder");
   slider.style("width", "180px");
+  
+  blurSlider = createSlider(0, 150, 50);
+  blurSlider.parent("slider-holder");
+  blurSlider.style("width", "180px");
+  
+  colorSlider = createSlider(0, 255, 128);
+  colorSlider.parent("slider-holder");
+  colorSlider.style("width", "180px");
 
   blurSlider = createSlider(0, 150, 50);
   blurSlider.position(200, height + 10);
@@ -44,7 +52,6 @@ function draw() {
   let innerRadius = max(0, radius - blurWidth);
   let outerRadius = radius;
 
-  // 擦除遮罩
   ctx.save();
   ctx.globalCompositeOperation = 'destination-out';
   let eraseGradient = ctx.createRadialGradient(mouseX, mouseY, innerRadius, mouseX, mouseY, outerRadius);
