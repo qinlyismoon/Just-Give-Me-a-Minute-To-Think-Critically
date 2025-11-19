@@ -1,76 +1,92 @@
-let slider;
 let font;
 let words = [];
-let totalWords = 8; // 控制行数
-let fontSize = 48;
-let baseX = 550; // 控制右对齐的边界
+let totalWords = 5;
+let fontSize = 60;
+let diskWidth = 80;
+let diskHeight = 55;
 
 function preload() {
-  font = loadFont("PixelFont.ttf"); // 确保字体文件在正确路径
+  font = loadFont("PixelFont.ttf");
 }
 
 function setup() {
   let canvas = createCanvas(600, 600);
   canvas.parent("canvas-container");
-
+  
   textFont(font);
-  textAlign(RIGHT, CENTER);
   textSize(fontSize);
+  textAlign(LEFT, CENTER); 
   noStroke();
 
-  // 创建 slider 并插入指定 div
-  slider = createSlider(0, 100, 0); // 初始值设为 0
-  slider.parent("slider-holder");
-  slider.style("width", "580px");
-  slider.style("direction", "rtl");
-
-  let spacing = fontSize + 10;
-  let startY = 100;
+  let spacing = fontSize + 20;
+  let startY = 130;
 
   for (let i = 0; i < totalWords; i++) {
-    let isDisinfo = random() < 0.4; // 40% 显示 dis
+    let isDisinfo = random() < 0.5; 
     let y = startY + i * spacing;
-    words.push({ isDisinfo, x: baseX, y });
+
+    let infoWidth = textWidth("information");
+    let disWidth = textWidth("dis");
+
+    
+    let minX = 20 + disWidth + 10; 
+    let maxX = width - infoWidth - 20;
+    let infoX = random(minX, maxX);
+
+    let disX = infoX - disWidth - 10;
+
+    // 创建灰色遮罩层
+    let pg = createGraphics(diskWidth, diskHeight);
+    pg.background(180);
+    pg.noStroke();
+
+    words.push({
+      isDisinfo,
+      infoX,
+      y,
+      disX,
+      disY: y,
+      mask: pg
+    });
   }
 }
 
 function draw() {
-  background("#D1E7F2");
-
-  let sliderVal = slider.value(); // 获取滑块值
-  let disMaxWidth = textWidth("dis");
-  let visibleW = map(sliderVal, 0, 100, 0, disMaxWidth); // reveal 宽度
-
-  let infoW = textWidth("information");
-  let lineX = baseX - infoW;
-  let revealX = lineX - disMaxWidth + visibleW;
-
-  // reveal 边界线
-  stroke(255);
-  strokeWeight(2);
-  line(revealX, 0, revealX, height);
-  noStroke();
+  background("#00b1f0");
 
   for (let word of words) {
-    let { isDisinfo, x, y } = word;
+    let { infoX, y, isDisinfo, disX, disY, mask } = word;
 
-    // 始终显示 information
+
     fill("white");
-    text("information", x, y);
+    textAlign(LEFT, CENTER);
+    text("information", infoX, y);
 
-    // 条件显示 dis 前缀
-    if (isDisinfo && visibleW > 0) {
-      let disStartX = x - textWidth("information") - disMaxWidth;
 
+    if (isDisinfo) {
       fill("#cb4a31");
-      push();
-      drawingContext.save();
-      drawingContext.beginPath();
-      drawingContext.rect(disStartX, y - fontSize / 2, visibleW, fontSize);
-      drawingContext.clip();
-      text("dis", x - textWidth("information"), y);
-      drawingContext.restore();
-      pop();
+      textAlign(LEFT, CENTER);
+      text("dis", disX, disY + 2);
+    }
+
+
+    imageMode(CENTER);
+    image(mask, disX + diskWidth / 2, disY);
+    imageMode(CORNER);
+  }
+}
+
+function mouseDragged() {
+  for (let word of words) {
+    let { disX, disY, mask } = word;
+
+    let localX = mouseX - (disX);
+    let localY = mouseY - (disY - diskHeight / 2);
+
+    if (localX >= 0 && localX < diskWidth && localY >= 0 && localY < diskHeight) {
+      mask.erase();
+      mask.ellipse(localX, localY, 20, 20);
+      mask.noErase();
     }
   }
 }
