@@ -126,40 +126,79 @@ class DraggableBox {
     this.path = this.generatePuzzleShape();
   }
 
-  generatePuzzleShape() {
-    let path = [];
-    let step = 1 / 12.0;
+generatePuzzleShape() {
+  let path = [];
 
-    // top edge
-    for (let t = 0; t <= 1; t += step) {
-      let px = this.w * t;
-      let py = sin(t * TWO_PI * 2 + random(PI)) * 6;
-      path.push([px, py]);
+  let edges = [
+    floor(random(-1, 2)), // top
+    floor(random(-1, 2)), // right
+    floor(random(-1, 2)), // bottom
+    floor(random(-1, 2))  // left
+  ];
+
+  let tabSize = min(this.w, this.h) * 0.25;
+  let tabDepth = tabSize * 0.55;
+
+  let segments = 20;
+
+  // ----- TOP EDGE -----
+  for (let i = 0; i <= segments; i++) {
+    let t = i / segments;
+    let px = this.w * t;
+    let py = 0;
+
+    if (edges[0] !== 0 && t > 0.25 && t < 0.75) {
+      let tt = map(t, 0.25, 0.75, -1, 1);
+      let curve = sqrt(1 - tt * tt) * tabDepth;
+      py = edges[0] === 1 ? -curve : curve;
     }
-
-    // right edge
-    for (let t = 0; t <= 1; t += step) {
-      let px = this.w + cos(t * TWO_PI * 2 + random(PI)) * 6;
-      let py = this.h * t;
-      path.push([px, py]);
-    }
-
-    // bottom edge
-    for (let t = 0; t <= 1; t += step) {
-      let px = this.w * (1 - t);
-      let py = this.h + sin(t * TWO_PI * 2 + random(PI)) * 6;
-      path.push([px, py]);
-    }
-
-    // left edge
-    for (let t = 0; t <= 1; t += step) {
-      let px = -cos(t * TWO_PI * 2 + random(PI)) * 6;
-      let py = this.h * (1 - t);
-      path.push([px, py]);
-    }
-
-    return path;
+    path.push([px, py]);
   }
+
+  // ----- RIGHT EDGE -----
+  for (let i = 0; i <= segments; i++) {
+    let t = i / segments;
+    let px = this.w;
+    let py = this.h * t;
+
+    if (edges[1] !== 0 && t > 0.25 && t < 0.75) {
+      let tt = map(t, 0.25, 0.75, -1, 1);
+      let curve = sqrt(1 - tt * tt) * tabDepth;
+      px = edges[1] === 1 ? this.w + curve : this.w - curve;
+    }
+    path.push([px, py]);
+  }
+
+  // ----- BOTTOM EDGE -----
+  for (let i = 0; i <= segments; i++) {
+    let t = i / segments;
+    let px = this.w * (1 - t);
+    let py = this.h;
+
+    if (edges[2] !== 0 && t > 0.25 && t < 0.75) {
+      let tt = map(t, 0.25, 0.75, -1, 1);
+      let curve = sqrt(1 - tt * tt) * tabDepth;
+      py = edges[2] === 1 ? this.h + curve : this.h - curve;
+    }
+    path.push([px, py]);
+  }
+
+  // ----- LEFT EDGE -----
+  for (let i = 0; i <= segments; i++) {
+    let t = i / segments;
+    let px = 0;
+    let py = this.h * (1 - t);
+
+    if (edges[3] !== 0 && t > 0.25 && t < 0.75) {
+      let tt = map(t, 0.25, 0.75, -1, 1);
+      let curve = sqrt(1 - tt * tt) * tabDepth;
+      px = edges[3] === 1 ? -curve : curve;
+    }
+    path.push([px, py]);
+  }
+
+  return path;
+}
 
   display() {
     push();
