@@ -14,8 +14,8 @@ function setup() {
   let canvas = createCanvas(600, 600);
   canvas.parent("canvas-container");
   
-  img.resize(600, 600);
-  pg = createGraphics(600, 600);
+  img.resize(width, height); 
+  pg = createGraphics(width, height);
 
   slider = createSlider(50, 300, 150);
   slider.parent("slider-holder");
@@ -27,14 +27,6 @@ function setup() {
   
   colorSlider = createSlider(0, 255, 128);
   colorSlider.parent("slider-holder");
-  colorSlider.style("width", "180px");
-
-  blurSlider = createSlider(0, 150, 50);
-  blurSlider.position(200, height + 10);
-  blurSlider.style("width", "180px");
-
-  colorSlider = createSlider(0, 255, 128); 
-  colorSlider.position(390, height + 10);
   colorSlider.style("width", "180px");
 }
 
