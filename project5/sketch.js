@@ -11,7 +11,9 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(600, 600);
+  let canvas = createCanvas(600, 600);
+  canvas.parent("canvas-container");
+  
   img.resize(600, 600);
   pg = createGraphics(600, 600);
 
